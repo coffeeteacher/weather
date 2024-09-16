@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>元件應用-天氣預報</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <script src="../javascripts/vendor.js"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+
+<body class="bg-lighter">
+    <div class="container main my-5">
+        <div class="row">
+            <main class="col post">
+                <!-- 章節標題 -->
+                <div class="mb-4">
+                    <h1 class="mt-0 text-muted">36小時天氣預報</h1></small>
+                </div>
+
+                <div id="root"></div>
+                <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+                <script type="text/babel">
+                    // 資料來源：https://data.gov.tw/dataset/6069
+                    // 天氣圖示：https://www.cwa.gov.tw/V8/C/K/Weather_Icon.html
+                    // 因為氣象圖示相當多，所以本範例中僅採用已下載天氣資料為主，其餘圖示同學可至上方氣象局網站下載
+                    (async () => {
+                        const data = await axios.get('./F-C0032-001.json');
+                        const { location } = data.data.cwaopendata.dataset;
+                        const options = { hour: 'numeric', minute: 'numeric' }
+                        console.log(location);
+
+                        // #3元件拆解（由小到大拆解）
+                        // Time => 特定區塊邏輯較複雜
+                        const Time = ({ time }) => {
+                            return (
+                                <>
+                                    <div className="h4 my-2">
+                                        {new Date(time.startTime).toLocaleString(undefined, {
+                                            day: 'numeric'
+                                        })}
+                                    </div>
+                                    {
+                                        new Date(time.startTime).toLocaleString(undefined, {
+                                            hour: 'numeric',
+                                            minute: 'numeric'
+                                        })
+                                    }
+                                    <br />
+                                    ~
+                                    <br />
+                                    {
+                                        new Date(time.endTime).toLocaleString(undefined, {
+                                            hour: 'numeric',
+                                            minute: 'numeric'
+                                        })
+                                    }
+                                    <br />
+                                </>
+                            )
+                        }
+
+                        // Card => 可重覆利用
+                        const Card = ({ title, wx, pop }) => {
+                            return <div className="card text-center">
+                                {/*卡片標題*/}
+                                <div className="card-header">
+                                    <div className="h4 my-0">                                        
+                                        {/*縣市名*/}
+                                        {title}
+                                    </div>
+                                </div>
+                                {/*卡片內容*/}
+                                <div className="card-body">
+                                    {/*1列3欄*/}
+                                    <div className="row row-cols-3">
+                                        {
+                                            wx.time.map((time, index) => {
+                                                return (
+                                                    <div className="col" key={index}>
+
+                                                        {/*元件生成*/}
+                                                        <Time time={time} />
+
+                                                        {/*改用反引號帶入圖檔*/}
+                                                        <img src={`./weatherIcon/${time.parameter.parameterName}.svg`}
+                                                            alt={time.parameter.parameterName}
+                                                        />
+                                                        {/*天氣名稱*/}
+                                                        <div className="mt-2">{time.parameter.parameterName}</div>
+                                                        {/*降雨率*/}
+                                                        <div className="mt-2"><i className="bi bi-umbrella-fill"></i>
+                                                            {pop.time[index].parameter.parameterName}%
+                                                        </div>
+
+                                                    </div>
+                                                )
+                                            })
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+
+
+                        // location > weatherElement(Array)
+                        // Wx 天氣概況 > time(Array)
+                        // PoP 降雨率 > time(Array)
+                        const App = () => {
+                            return (
+                                <>
+                                    <h2 className="my-3">三十六小時天氣預報</h2>
+                                    {/*一列二欄*/}
+                                    <div className="row row-cols-2 g-4">
+                                        {/*#2 使用迴圈，顯示所有縣市*/}
+                                        {
+                                            location.map((city) => {
+                                                return (
+                                                    <div className="col" key={city.locationName}>
+                                                        {/*<Card city={city} />*/}
+                                                        {/*改寫卡片元件傳參數，簡化元件中的使用*/}
+                                                        <Card
+                                                            title={city.locationName}
+                                                            wx={city.weatherElement[0]}
+                                                            pop={city.weatherElement[4]}
+                                                        />
+
+                                                    </div>
+                                                )
+                                            })
+                                        }
+                                    </div>
+                                </>
+                            );
+                        };
+
+                        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+                    })();
+                </script>
+            </main>
+        </div>
+    </div>
+    <link rel="stylesheet" href="../stylesheets/all.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+</body>
+
+</html>
