@@ -24,13 +24,13 @@
                 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
                 <script type="text/babel">
-                    // 資料來源：https://data.gov.tw/dataset/6069
+                    // 資料來源：https://opendata.cwa.gov.tw/dataset/climate/F-C0032-001
                     // 天氣圖示：https://www.cwa.gov.tw/V8/C/K/Weather_Icon.html
                     // 因為氣象圖示相當多，所以本範例中僅採用已下載天氣資料為主，其餘圖示同學可至上方氣象局網站下載
                     (async () => {
                         const data = await axios.get('./F-C0032-001.json');
                         // const data = await axios.get('https://coffeeteacher.github.io/weather/F-C0032-001.json');
-                        
+
                         const { location } = data.data.cwaopendata.dataset;
                         const options = { hour: 'numeric', minute: 'numeric' }
                         console.log(location);
@@ -43,7 +43,7 @@
                         const Time = ({ time }) => {
                             return <>
                                 <div className="h4 my-2">
-                                    {/* 5日 */}
+                                    {/* 9日 */}
                                     {/* 取得日期 */}
                                     {/* 關鍵字查 toLocaleString */}
                                     {/* https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toLocaleString*/}
